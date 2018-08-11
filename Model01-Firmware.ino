@@ -65,6 +65,12 @@
 // Support for USB quirks, like changing the key state report protocol
 #include "Kaleidoscope-USB-Quirks.h"
 
+#include "Kaleidoscope-HostOS.h"
+#include "Kaleidoscope/HostOS-select.h"
+#include "Kaleidoscope-Syster.h"
+#include "Kaleidoscope-Unicode.h"
+#include "kaleidoscope/hid.h"
+
 /** This 'enum' is a list of all the macros used by the Model 01's firmware
   * The names aren't particularly important. What is important is that each
   * is unique.
@@ -142,10 +148,10 @@ enum { PRIMARY, NUMPAD, FUNCTION }; // layers
   *
   */
 
-#define PRIMARY_KEYMAP_QWERTY
+// #define PRIMARY_KEYMAP_QWERTY
 // #define PRIMARY_KEYMAP_COLEMAK
 // #define PRIMARY_KEYMAP_DVORAK
-// #define PRIMARY_KEYMAP_CUSTOM
+#define PRIMARY_KEYMAP_CUSTOM
 
 
 
@@ -156,7 +162,7 @@ enum { PRIMARY, NUMPAD, FUNCTION }; // layers
 
 KEYMAPS(
 
-#if defined (PRIMARY_KEYMAP_QWERTY) 
+#if defined (PRIMARY_KEYMAP_QWERTY)
   [PRIMARY] = KEYMAP_STACKED
   (___,          Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
    Key_Backtick, Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Tab,
@@ -189,7 +195,7 @@ KEYMAPS(
    Key_RightShift, Key_LeftAlt, Key_Spacebar, Key_RightControl,
    ShiftToLayer(FUNCTION)),
 
-#elif defined (PRIMARY_KEYMAP_COLEMAK) 
+#elif defined (PRIMARY_KEYMAP_COLEMAK)
 
   [PRIMARY] = KEYMAP_STACKED
   (___,          Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
@@ -209,25 +215,25 @@ KEYMAPS(
 #elif defined (PRIMARY_KEYMAP_CUSTOM)
   // Edit this keymap to make a custom layout
   [PRIMARY] = KEYMAP_STACKED
-  (___,          Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
-   Key_Backtick, Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Tab,
-   Key_PageUp,   Key_A, Key_S, Key_D, Key_F, Key_G,
-   Key_PageDown, Key_Z, Key_X, Key_C, Key_V, Key_B, Key_Escape,
+  (___,          Key_1,         Key_2,     Key_3,      Key_4, Key_5, Key_LEDEffectNext,
+   Key_Backtick, Key_Quote,     Key_Comma, Key_Period, Key_P, Key_Y, Key_Tab,
+   Key_PageUp,   Key_A,         Key_O,     Key_E,      Key_U, Key_I,
+   Key_PageDown, Key_Semicolon, Key_Q,     Key_J,      Key_K, Key_X, Key_Escape,
    Key_LeftControl, Key_Backspace, Key_LeftGui, Key_LeftShift,
    ShiftToLayer(FUNCTION),
 
-   M(MACRO_ANY),  Key_6, Key_7, Key_8,     Key_9,         Key_0,         LockLayer(NUMPAD),
-   Key_Enter,     Key_Y, Key_U, Key_I,     Key_O,         Key_P,         Key_Equals,
-                  Key_H, Key_J, Key_K,     Key_L,         Key_Semicolon, Key_Quote,
-   Key_RightAlt,  Key_N, Key_M, Key_Comma, Key_Period,    Key_Slash,     Key_Minus,
+   SYSTER,         Key_6, Key_7, Key_8, Key_9, Key_0, LockLayer(NUMPAD),
+   Key_Enter,      Key_F, Key_G, Key_C, Key_R, Key_L, Key_Slash,
+                   Key_D, Key_H, Key_T, Key_N, Key_S, Key_Minus,
+   Key_RightAlt,   Key_B, Key_M, Key_W, Key_V, Key_Z, Key_Equals,
    Key_RightShift, Key_LeftAlt, Key_Spacebar, Key_RightControl,
    ShiftToLayer(FUNCTION)),
 
-#else 
+#else
 
 #error "No default keymap defined. You should make sure that you have a line like '#define PRIMARY_KEYMAP_QWERTY' in your sketch"
 
-#endif 
+#endif
 
 
 
@@ -292,6 +298,87 @@ static void anyKeyMacro(uint8_t keyState) {
 
   if (keyIsPressed(keyState))
     kaleidoscope::hid::pressKey(lastKey);
+}
+
+const char keyToChar(Key key) {
+  if (key.flags != 0)
+    return 0;
+
+  switch (key.keyCode) {
+  case Key_A.keyCode ... Key_Z.keyCode:
+    return 'a' + (key.keyCode - Key_A.keyCode);
+  case Key_1.keyCode ... Key_0.keyCode:
+    return '1' + (key.keyCode - Key_1.keyCode);
+  case Key_Minus.keyCode ... Key_Slash.keyCode:
+    return '-' + (key.keyCode - Key_Minus.keyCode);
+  }
+
+  return 0;
+}
+
+void systerAction(kaleidoscope::Syster::action_t action, const char *symbol) {
+  switch (action) {
+  case kaleidoscope::Syster::StartAction:
+    Unicode.type(0x2328);
+    break;
+
+  case kaleidoscope::Syster::EndAction:
+    handleKeyswitchEvent(Key_Backspace, UNKNOWN_KEYSWITCH_LOCATION, IS_PRESSED | INJECTED);
+    kaleidoscope::hid::sendKeyboardReport();
+    handleKeyswitchEvent(Key_Backspace, UNKNOWN_KEYSWITCH_LOCATION, WAS_PRESSED | INJECTED);
+    kaleidoscope::hid::sendKeyboardReport();
+    break;
+
+  case kaleidoscope::Syster::SymbolAction:
+    Serial.print("systerAction = ");
+    Serial.println(symbol);
+    if (strcmp(symbol, "coffee") == 0) {
+      Unicode.type(0x2615);
+    } else if (strcmp(symbol, ".8") == 0) { // =/
+      Unicode.type(0x1f615);
+    } else if (strcmp(symbol, ".9") == 0) { // =(
+      Unicode.type(0x1f641);
+    } else if (strcmp(symbol, ".:") == 0) { // =)
+      Unicode.type(0x1f642);
+    } else if (strcmp(symbol, "9.") == 0) { // (=
+      Unicode.type(0x1f643);
+    } else if (strcmp(symbol, ".p") == 0) { // =P
+      Unicode.type(0x1f61b);
+    } else if (strcmp(symbol, ".x") == 0) { // =x
+      Unicode.type(0x1f636);
+    } else if (strcmp(symbol, "b:") == 0) { // B)
+      Unicode.type(0x1f60e);
+    } else if (strcmp(symbol, "3:") == 0) { // ;)
+      Unicode.type(0x1f609);
+    } else if (strcmp(symbol, "1::") == 0) { // 100
+      Unicode.type(0x1f4af);
+    } else if (strcmp(symbol, "eye") == 0) {
+      Unicode.type(0x1f440);
+    } else if (strcmp(symbol, "heye") == 0) {
+      Unicode.type(0x1f60d);
+    } else if (strcmp(symbol, "think") == 0) {
+      Unicode.type(0x1f914);
+    } else if (strcmp(symbol, "party") == 0) {
+      Unicode.type(0x1f389);
+    } else if (strcmp(symbol, "flex") == 0) {
+      Unicode.type(0x1f4aa);
+    } else if (strcmp(symbol, "pray") == 0) {
+      Unicode.type(0x1f64f);
+    } else if (strcmp(symbol, "kiss") == 0) {
+      Unicode.type(0x1f618);
+    } else if (strcmp(symbol, "ok") == 0) {
+      Unicode.type(0x1f58f);
+    } else if (strcmp(symbol, "yes") == 0) {
+      Unicode.type(0x1f592);
+    } else if (strcmp(symbol, "no") == 0) {
+      Unicode.type(0x1f593);
+    } else if (strcmp(symbol, "fu") == 0) {
+      Unicode.type(0x1f595);
+    } else if (strcmp(symbol, "spy") == 0) {
+      Unicode.type(0x1f575);
+    }
+    break;
+  }
 }
 
 
@@ -396,6 +483,9 @@ USE_MAGIC_COMBOS({.action = toggleKeyboardProtocol,
 // The order can be important. For example, LED effects are
 // added in the order they're listed here.
 KALEIDOSCOPE_INIT_PLUGINS(
+                          HostOS,
+                          Unicode,
+                          Syster,
   // The boot greeting effect pulses the LED button for 10 seconds after the keyboard is first connected
   BootGreetingEffect,
 
@@ -405,16 +495,13 @@ KALEIDOSCOPE_INIT_PLUGINS(
   // LEDControl provides support for other LED modes
   LEDControl,
 
-  // We start with the LED effect that turns off all the LEDs.
-  LEDOff,
+  // The rainbow wave effect lights up your keyboard with all the colors of a rainbow
+  // and slowly moves the rainbow across your keyboard
+  LEDRainbowWaveEffect,
 
   // The rainbow effect changes the color of all of the keyboard's keys at the same time
   // running through all the colors of the rainbow.
   LEDRainbowEffect,
-
-  // The rainbow wave effect lights up your keyboard with all the colors of a rainbow
-  // and slowly moves the rainbow across your keyboard
-  LEDRainbowWaveEffect,
 
   // The chase effect follows the adventure of a blue pixel which chases a red pixel across
   // your keyboard. Spoiler: the blue pixel never catches the red pixel
@@ -464,6 +551,8 @@ KALEIDOSCOPE_INIT_PLUGINS(
  * Kaleidoscope and any plugins.
  */
 void setup() {
+  Serial.begin(9600);
+
   // First, call Kaleidoscope's internal setup function
   Kaleidoscope.setup();
 
