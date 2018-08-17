@@ -14,62 +14,41 @@
 
 
 // The Kaleidoscope core
-#include "Kaleidoscope.h"
-
-// Support for keys that move the mouse
-#include "Kaleidoscope-MouseKeys.h"
+#include <Kaleidoscope.h>
 
 // Support for macros
-#include "Kaleidoscope-Macros.h"
+#include <Kaleidoscope-Macros.h>
 
 // Support for controlling the keyboard's LEDs
-#include "Kaleidoscope-LEDControl.h"
+#include <Kaleidoscope-LEDControl.h>
 
 // Support for "Numpad" mode, which is mostly just the Numpad specific LED mode
-#include "Kaleidoscope-NumPad.h"
+#include <Kaleidoscope-NumPad.h>
 
 // Support for an "LED off mode"
-#include "LED-Off.h"
-
-// Support for the "Boot greeting" effect, which pulses the 'LED' button for 10s
-// when the keyboard is connected to a computer (or that computer is powered on)
-#include "Kaleidoscope-LEDEffect-BootGreeting.h"
-
-// Support for LED modes that set all LEDs to a single color
-#include "Kaleidoscope-LEDEffect-SolidColor.h"
-
-// Support for an LED mode that makes all the LEDs 'breathe'
-#include "Kaleidoscope-LEDEffect-Breathe.h"
-
-// Support for an LED mode that makes a red pixel chase a blue pixel across the keyboard
-#include "Kaleidoscope-LEDEffect-Chase.h"
-
-// Support for LED modes that pulse the keyboard's LED in a rainbow pattern
-#include "Kaleidoscope-LEDEffect-Rainbow.h"
-
-// Support for an LED mode that lights up the keys as you press them
-#include "Kaleidoscope-LED-Stalker.h"
-
-// Support for an LED mode that prints the keys you press in letters 4px high
-#include "Kaleidoscope-LED-AlphaSquare.h"
+#include <LED-Off.h>
 
 // Support for Keyboardio's internal keyboard testing mode
-#include "Kaleidoscope-Model01-TestMode.h"
+#include <Kaleidoscope-Model01-TestMode.h>
 
 // Support for host power management (suspend & wakeup)
-#include "Kaleidoscope-HostPowerManagement.h"
+#include <Kaleidoscope-HostPowerManagement.h>
 
 // Support for magic combos (key chords that trigger an action)
-#include "Kaleidoscope-MagicCombo.h"
+#include <Kaleidoscope-MagicCombo.h>
 
 // Support for USB quirks, like changing the key state report protocol
-#include "Kaleidoscope-USB-Quirks.h"
+#include <Kaleidoscope-USB-Quirks.h>
 
-#include "Kaleidoscope-HostOS.h"
-#include "Kaleidoscope/HostOS-select.h"
-#include "Kaleidoscope-Syster.h"
-#include "Kaleidoscope-Unicode.h"
-#include "kaleidoscope/hid.h"
+#include <Kaleidoscope-HostOS.h>
+#include <Kaleidoscope/HostOS-select.h>
+#include <Kaleidoscope-Syster.h>
+#include <Kaleidoscope-Unicode.h>
+#include <kaleidoscope/hid.h>
+#include <Kaleidoscope-Qukeys.h>
+#include <Kaleidoscope-MacrosOnTheFly.h>
+#include <Kaleidoscope-LEDEffect-DigitalRain.h>
+#include <Kaleidoscope-LED-Wavepool.h>
 
 /** This 'enum' is a list of all the macros used by the Model 01's firmware
   * The names aren't particularly important. What is important is that each
@@ -134,108 +113,23 @@ enum { MACRO_VERSION_INFO,
 
 enum { PRIMARY, NUMPAD, FUNCTION }; // layers
 
-
-/**
-  * To change your keyboard's layout from QWERTY to DVORAK or COLEMAK, comment out the line
-  *
-  * #define PRIMARY_KEYMAP_QWERTY
-  *
-  * by changing it to
-  *
-  * // #define PRIMARY_KEYMAP_QWERTY
-  *
-  * Then uncomment the line corresponding to the layout you want to use.
-  *
-  */
-
-// #define PRIMARY_KEYMAP_QWERTY
-// #define PRIMARY_KEYMAP_COLEMAK
-// #define PRIMARY_KEYMAP_DVORAK
-#define PRIMARY_KEYMAP_CUSTOM
-
-
-
-/* This comment temporarily turns off astyle's indent enforcement
- *   so we can make the keymaps actually resemble the physical key layout better
- */
 // *INDENT-OFF*
 
 KEYMAPS(
-
-#if defined (PRIMARY_KEYMAP_QWERTY)
   [PRIMARY] = KEYMAP_STACKED
-  (___,          Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
-   Key_Backtick, Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Tab,
-   Key_PageUp,   Key_A, Key_S, Key_D, Key_F, Key_G,
-   Key_PageDown, Key_Z, Key_X, Key_C, Key_V, Key_B, Key_Escape,
-   Key_LeftControl, Key_Backspace, Key_LeftGui, Key_LeftShift,
+  (Key_Escape,      Key_1,         Key_2,       Key_3,      Key_4, Key_5, Key_LEDEffectNext,
+   Key_Backtick,    Key_Quote,     Key_Comma,   Key_Period, Key_P, Key_Y, Key_Tab,
+   Key_MacroRec,    Key_A,         Key_O,       Key_E,      Key_U, Key_I,
+   Key_MacroPlay,   Key_Semicolon, Key_Q,       Key_J,      Key_K, Key_X, Key_LeftGui,
+   Key_LeftBracket, Key_Backspace, LSHIFT(Key_LeftBracket), LSHIFT(Key_9),
    ShiftToLayer(FUNCTION),
 
-   M(MACRO_ANY),  Key_6, Key_7, Key_8,     Key_9,         Key_0,         LockLayer(NUMPAD),
-   Key_Enter,     Key_Y, Key_U, Key_I,     Key_O,         Key_P,         Key_Equals,
-                  Key_H, Key_J, Key_K,     Key_L,         Key_Semicolon, Key_Quote,
-   Key_RightAlt,  Key_N, Key_M, Key_Comma, Key_Period,    Key_Slash,     Key_Minus,
-   Key_RightShift, Key_LeftAlt, Key_Spacebar, Key_RightControl,
+   SYSTER,       Key_6, Key_7, Key_8, Key_9, Key_0, LockLayer(NUMPAD),
+   Key_Enter,    Key_F, Key_G, Key_C, Key_R, Key_L, Key_Slash,
+                 Key_D, Key_H, Key_T, Key_N, Key_S, Key_Minus,
+   Key_RightGui, Key_B, Key_M, Key_W, Key_V, Key_Z, Key_Equals,
+   LSHIFT(Key_0), LSHIFT(Key_RightBracket), Key_Spacebar, Key_RightBracket,
    ShiftToLayer(FUNCTION)),
-
-#elif defined (PRIMARY_KEYMAP_DVORAK)
-
-  [PRIMARY] = KEYMAP_STACKED
-  (___,          Key_1,         Key_2,     Key_3,      Key_4, Key_5, Key_LEDEffectNext,
-   Key_Backtick, Key_Quote,     Key_Comma, Key_Period, Key_P, Key_Y, Key_Tab,
-   Key_PageUp,   Key_A,         Key_O,     Key_E,      Key_U, Key_I,
-   Key_PageDown, Key_Semicolon, Key_Q,     Key_J,      Key_K, Key_X, Key_Escape,
-   Key_LeftControl, Key_Backspace, Key_LeftGui, Key_LeftShift,
-   ShiftToLayer(FUNCTION),
-
-   M(MACRO_ANY),   Key_6, Key_7, Key_8, Key_9, Key_0, LockLayer(NUMPAD),
-   Key_Enter,      Key_F, Key_G, Key_C, Key_R, Key_L, Key_Slash,
-                   Key_D, Key_H, Key_T, Key_N, Key_S, Key_Minus,
-   Key_RightAlt,   Key_B, Key_M, Key_W, Key_V, Key_Z, Key_Equals,
-   Key_RightShift, Key_LeftAlt, Key_Spacebar, Key_RightControl,
-   ShiftToLayer(FUNCTION)),
-
-#elif defined (PRIMARY_KEYMAP_COLEMAK)
-
-  [PRIMARY] = KEYMAP_STACKED
-  (___,          Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
-   Key_Backtick, Key_Q, Key_W, Key_F, Key_P, Key_G, Key_Tab,
-   Key_PageUp,   Key_A, Key_R, Key_S, Key_T, Key_D,
-   Key_PageDown, Key_Z, Key_X, Key_C, Key_V, Key_B, Key_Escape,
-   Key_LeftControl, Key_Backspace, Key_LeftGui, Key_LeftShift,
-   ShiftToLayer(FUNCTION),
-
-   M(MACRO_ANY),  Key_6, Key_7, Key_8,     Key_9,         Key_0,         LockLayer(NUMPAD),
-   Key_Enter,     Key_J, Key_L, Key_U,     Key_Y,         Key_Semicolon, Key_Equals,
-                  Key_H, Key_N, Key_E,     Key_I,         Key_O,         Key_Quote,
-   Key_RightAlt,  Key_K, Key_M, Key_Comma, Key_Period,    Key_Slash,     Key_Minus,
-   Key_RightShift, Key_LeftAlt, Key_Spacebar, Key_RightControl,
-   ShiftToLayer(FUNCTION)),
-
-#elif defined (PRIMARY_KEYMAP_CUSTOM)
-  // Edit this keymap to make a custom layout
-  [PRIMARY] = KEYMAP_STACKED
-  (___,          Key_1,         Key_2,     Key_3,      Key_4, Key_5, Key_LEDEffectNext,
-   Key_Backtick, Key_Quote,     Key_Comma, Key_Period, Key_P, Key_Y, Key_Tab,
-   Key_PageUp,   Key_A,         Key_O,     Key_E,      Key_U, Key_I,
-   Key_PageDown, Key_Semicolon, Key_Q,     Key_J,      Key_K, Key_X, Key_Escape,
-   Key_LeftControl, Key_Backspace, Key_LeftGui, Key_LeftShift,
-   ShiftToLayer(FUNCTION),
-
-   SYSTER,         Key_6, Key_7, Key_8, Key_9, Key_0, LockLayer(NUMPAD),
-   Key_Enter,      Key_F, Key_G, Key_C, Key_R, Key_L, Key_Slash,
-                   Key_D, Key_H, Key_T, Key_N, Key_S, Key_Minus,
-   Key_RightAlt,   Key_B, Key_M, Key_W, Key_V, Key_Z, Key_Equals,
-   Key_RightShift, Key_LeftAlt, Key_Spacebar, Key_RightControl,
-   ShiftToLayer(FUNCTION)),
-
-#else
-
-#error "No default keymap defined. You should make sure that you have a line like '#define PRIMARY_KEYMAP_QWERTY' in your sketch"
-
-#endif
-
-
 
   [NUMPAD] =  KEYMAP_STACKED
   (___, ___, ___, ___, ___, ___, ___,
@@ -253,22 +147,21 @@ KEYMAPS(
    ___),
 
   [FUNCTION] =  KEYMAP_STACKED
-  (___,      Key_F1,           Key_F2,      Key_F3,     Key_F4,        Key_F5,           Key_CapsLock,
-   Key_Tab,  ___,              Key_mouseUp, ___,        Key_mouseBtnR, Key_mouseWarpEnd, Key_mouseWarpNE,
-   Key_Home, Key_mouseL,       Key_mouseDn, Key_mouseR, Key_mouseBtnL, Key_mouseWarpNW,
-   Key_End,  Key_PrintScreen,  Key_Insert,  ___,        Key_mouseBtnM, Key_mouseWarpSW,  Key_mouseWarpSE,
+  (___,       Key_F1,           Key_F2,        Key_F3,        Key_F4,                     Key_F5,                  Key_CapsLock,
+   Key_Tab,   ___,              Key_PageUp,    Key_UpArrow,   Key_PageDown,               Key_Home,                ___,
+   Key_Copy,  ___,              Key_LeftArrow, Key_DownArrow, Key_RightArrow,             Key_End,
+   Key_Paste, Key_PrintScreen,  Key_Insert,    ___,           Consumer_ScanPreviousTrack, Consumer_PlaySlashPause, Consumer_ScanNextTrack,
    ___, Key_Delete, ___, ___,
    ___,
 
-   Consumer_ScanPreviousTrack, Key_F6,                 Key_F7,                   Key_F8,                   Key_F9,          Key_F10,          Key_F11,
-   Consumer_PlaySlashPause,    Consumer_ScanNextTrack, Key_LeftCurlyBracket,     Key_RightCurlyBracket,    Key_LeftBracket, Key_RightBracket, Key_F12,
-                               Key_LeftArrow,          Key_DownArrow,            Key_UpArrow,              Key_RightArrow,  ___,              ___,
-   Key_PcApplication,          Consumer_Mute,          Consumer_VolumeDecrement, Consumer_VolumeIncrement, ___,             Key_Backslash,    Key_Pipe,
+   ___,               Key_F6,        Key_F7,                   Key_F8,          Key_F9,         Key_F10,       Key_F11,
+   ___,               Key_Home,      Key_PageUp,               Key_UpArrow,     Key_PageDown,   ___,           Key_F12,
+                      Key_End,       Key_LeftArrow,            Key_DownArrow,   Key_RightArrow, ___,           ___,
+   Key_PcApplication, Consumer_Mute, Consumer_VolumeDecrement, Consumer_VolumeIncrement, ___,   Key_Backslash, Key_Pipe,
    ___, ___, Key_Enter, ___,
    ___)
-	) // KEYMAPS(
+)
 
-/* Re-enable astyle's indent enforcement */
 // *INDENT-ON*
 
 /** versionInfoMacro handles the 'firmware version info' macro
@@ -301,16 +194,33 @@ static void anyKeyMacro(uint8_t keyState) {
 }
 
 const char keyToChar(Key key) {
-  if (key.flags != 0)
-    return 0;
-
   switch (key.keyCode) {
   case Key_A.keyCode ... Key_Z.keyCode:
     return 'a' + (key.keyCode - Key_A.keyCode);
   case Key_1.keyCode ... Key_0.keyCode:
     return '1' + (key.keyCode - Key_1.keyCode);
-  case Key_Minus.keyCode ... Key_Slash.keyCode:
-    return '-' + (key.keyCode - Key_Minus.keyCode);
+  case Key_Minus.keyCode:
+    return '-';
+  case Key_Equals.keyCode:
+    return '=';
+  case Key_LeftBracket.keyCode:
+    return '[';
+  case Key_RightBracket.keyCode:
+    return ']';
+  case Key_Backslash.keyCode:
+    return '\\';
+  case Key_Semicolon.keyCode:
+    return ';';
+  case Key_Quote.keyCode:
+    return '\'';
+  case Key_Backtick.keyCode:
+    return '`';
+  case Key_KeypadLeftParen.keyCode:
+    return '(';
+  case Key_KeypadRightParen.keyCode:
+    return ')';
+  case Key_Slash.keyCode:
+    return '/';
   }
 
   return 0;
@@ -334,21 +244,21 @@ void systerAction(kaleidoscope::Syster::action_t action, const char *symbol) {
     Serial.println(symbol);
     if (strcmp(symbol, "coffee") == 0) {
       Unicode.type(0x2615);
-    } else if (strcmp(symbol, ".8") == 0) { // =/
+    } else if (strcmp(symbol, "=/") == 0) { // =/
       Unicode.type(0x1f615);
-    } else if (strcmp(symbol, ".9") == 0) { // =(
+    } else if (strcmp(symbol, "=9") == 0) { // =(
       Unicode.type(0x1f641);
-    } else if (strcmp(symbol, ".:") == 0) { // =)
+    } else if (strcmp(symbol, "=:") == 0) { // =)
       Unicode.type(0x1f642);
-    } else if (strcmp(symbol, "9.") == 0) { // (=
+    } else if (strcmp(symbol, "9=") == 0) { // (=
       Unicode.type(0x1f643);
-    } else if (strcmp(symbol, ".p") == 0) { // =P
+    } else if (strcmp(symbol, "=p") == 0) { // =P
       Unicode.type(0x1f61b);
-    } else if (strcmp(symbol, ".x") == 0) { // =x
+    } else if (strcmp(symbol, "=x") == 0) { // =x
       Unicode.type(0x1f636);
     } else if (strcmp(symbol, "b:") == 0) { // B)
       Unicode.type(0x1f60e);
-    } else if (strcmp(symbol, "3:") == 0) { // ;)
+    } else if (strcmp(symbol, ";:") == 0) { // ;)
       Unicode.type(0x1f609);
     } else if (strcmp(symbol, "1::") == 0) { // 100
       Unicode.type(0x1f4af);
@@ -366,6 +276,10 @@ void systerAction(kaleidoscope::Syster::action_t action, const char *symbol) {
       Unicode.type(0x1f64f);
     } else if (strcmp(symbol, "kiss") == 0) {
       Unicode.type(0x1f618);
+    } else if (strcmp(symbol, "rip") == 0) {
+      Unicode.type(0x26b0);
+    } else if (strcmp(symbol, "dead") == 0) {
+      Unicode.type(0x1f480);
     } else if (strcmp(symbol, "ok") == 0) {
       Unicode.type(0x1f58f);
     } else if (strcmp(symbol, "yes") == 0) {
@@ -409,19 +323,6 @@ const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
 }
 
 
-
-// These 'solid' color effect definitions define a rainbow of
-// LED color modes calibrated to draw 500mA or less on the
-// Keyboardio Model 01.
-
-
-static kaleidoscope::LEDSolidColor solidRed(160, 0, 0);
-static kaleidoscope::LEDSolidColor solidOrange(140, 70, 0);
-static kaleidoscope::LEDSolidColor solidYellow(130, 100, 0);
-static kaleidoscope::LEDSolidColor solidGreen(0, 160, 0);
-static kaleidoscope::LEDSolidColor solidBlue(0, 70, 130);
-static kaleidoscope::LEDSolidColor solidIndigo(0, 0, 170);
-static kaleidoscope::LEDSolidColor solidViolet(130, 0, 120);
 
 /** toggleLedsOnSuspendResume toggles the LEDs off when the host goes to sleep,
  * and turns them back on when it wakes up.
@@ -482,76 +383,56 @@ USE_MAGIC_COMBOS({.action = toggleKeyboardProtocol,
 // First, tell Kaleidoscope which plugins you want to use.
 // The order can be important. For example, LED effects are
 // added in the order they're listed here.
-KALEIDOSCOPE_INIT_PLUGINS(
-                          HostOS,
+KALEIDOSCOPE_INIT_PLUGINS(HostOS,
                           Unicode,
+                          Qukeys,
+                          MacrosOnTheFly,
                           Syster,
-  // The boot greeting effect pulses the LED button for 10 seconds after the keyboard is first connected
-  BootGreetingEffect,
+                          // LEDControl provides support for other LED
+                          // modes
+                          LEDControl,
+                          WavepoolEffect,
+                          LEDDigitalRainEffect,
 
-  // The hardware test mode, which can be invoked by tapping Prog, LED and the left Fn button at the same time.
-  TestMode,
+                          // The numpad plugin is responsible for
+                          // lighting up the 'numpad' mode with a
+                          // custom LED effect
+                          NumPad,
 
-  // LEDControl provides support for other LED modes
-  LEDControl,
+                          // The macros plugin adds support for macros
+                          Macros,
 
-  // The rainbow wave effect lights up your keyboard with all the colors of a rainbow
-  // and slowly moves the rainbow across your keyboard
-  LEDRainbowWaveEffect,
+                          // The HostPowerManagement plugin allows us
+                          // to turn LEDs off when then host goes to
+                          // sleep, and resume them when it wakes up.
+                          HostPowerManagement,
 
-  // The rainbow effect changes the color of all of the keyboard's keys at the same time
-  // running through all the colors of the rainbow.
-  LEDRainbowEffect,
+                          // The MagicCombo plugin lets you use key
+                          // combinations to trigger custom actions -
+                          // a bit like Macros, but triggered by
+                          // pressing multiple keys at the same time.
+                          MagicCombo,
 
-  // The chase effect follows the adventure of a blue pixel which chases a red pixel across
-  // your keyboard. Spoiler: the blue pixel never catches the red pixel
-  LEDChaseEffect,
+                          // The USBQuirks plugin lets you do some
+                          // things with USB that we aren't
+                          // comfortable - or able - to do
+                          // automatically, but can be useful
+                          // nevertheless. Such as toggling the key
+                          // report protocol between Boot (used by
+                          // BIOSes) and Report (NKRO).
+                          USBQuirks);
 
-  // These static effects turn your keyboard's LEDs a variety of colors
-  solidRed, solidOrange, solidYellow, solidGreen, solidBlue, solidIndigo, solidViolet,
-
-  // The breathe effect slowly pulses all of the LEDs on your keyboard
-  LEDBreatheEffect,
-
-  // The AlphaSquare effect prints each character you type, using your
-  // keyboard's LEDs as a display
-  AlphaSquareEffect,
-
-  // The stalker effect lights up the keys you've pressed recently
-  StalkerEffect,
-
-  // The numpad plugin is responsible for lighting up the 'numpad' mode
-  // with a custom LED effect
-  NumPad,
-
-  // The macros plugin adds support for macros
-  Macros,
-
-  // The MouseKeys plugin lets you add keys to your keymap which move the mouse.
-  MouseKeys,
-
-  // The HostPowerManagement plugin allows us to turn LEDs off when then host
-  // goes to sleep, and resume them when it wakes up.
-  HostPowerManagement,
-
-  // The MagicCombo plugin lets you use key combinations to trigger custom
-  // actions - a bit like Macros, but triggered by pressing multiple keys at the
-  // same time.
-  MagicCombo,
-
-  // The USBQuirks plugin lets you do some things with USB that we aren't
-  // comfortable - or able - to do automatically, but can be useful
-  // nevertheless. Such as toggling the key report protocol between Boot (used
-  // by BIOSes) and Report (NKRO).
-  USBQuirks
-);
-
-/** The 'setup' function is one of the two standard Arduino sketch functions.
- * It's called when your keyboard first powers up. This is where you set up
- * Kaleidoscope and any plugins.
- */
 void setup() {
   Serial.begin(9600);
+
+  QUKEYS(kaleidoscope::Qukey(0, 3, 7, Key_LeftShift),
+         kaleidoscope::Qukey(0, 3, 8, Key_RightShift),
+         kaleidoscope::Qukey(0, 0, 7, Key_LeftControl),
+         kaleidoscope::Qukey(0, 0, 8, Key_RightControl),
+         kaleidoscope::Qukey(0, 2, 7, Key_LeftAlt),
+         kaleidoscope::Qukey(0, 2, 8, Key_RightAlt));
+  Qukeys.setTimeout(200);
+  Qukeys.setReleaseDelay(20);
 
   // First, call Kaleidoscope's internal setup function
   Kaleidoscope.setup();
@@ -559,32 +440,7 @@ void setup() {
   // While we hope to improve this in the future, the NumPad plugin
   // needs to be explicitly told which keymap layer is your numpad layer
   NumPad.numPadLayer = NUMPAD;
-
-  // We configure the AlphaSquare effect to use RED letters
-  AlphaSquare.color = CRGB(255, 0, 0);
-
-  // We set the brightness of the rainbow effects to 150 (on a scale of 0-255)
-  // This draws more than 500mA, but looks much nicer than a dimmer effect
-  LEDRainbowEffect.brightness(150);
-  LEDRainbowWaveEffect.brightness(150);
-
-  // The LED Stalker mode has a few effects. The one we like is
-  // called 'BlazingTrail'. For details on other options,
-  // see https://github.com/keyboardio/Kaleidoscope-LED-Stalker
-  StalkerEffect.variant = STALKER(BlazingTrail);
-
-  // We want to make sure that the firmware starts with LED effects off
-  // This avoids over-taxing devices that don't have a lot of power to share
-  // with USB devices
-  LEDOff.activate();
 }
-
-/** loop is the second of the standard Arduino sketch functions.
-  * As you might expect, it runs in a loop, never exiting.
-  *
-  * For Kaleidoscope-based keyboard firmware, you usually just want to
-  * call Kaleidoscope.loop(); and not do anything custom here.
-  */
 
 void loop() {
   Kaleidoscope.loop();
