@@ -293,7 +293,7 @@ void setup() {
   NumPad.numPadLayer = NUMPAD;
 
   emoteHighlighter.lockHue = 100;
-  emoteHighlighter.color = CRGB(160, 160, 0);
+  emoteHighlighter.color = CRGB(255, 255, 0);
 
   QUKEYS(kaleidoscope::Qukey(0, 3, 7, Key_LeftShift),
          kaleidoscope::Qukey(0, 3, 8, Key_RightShift),
