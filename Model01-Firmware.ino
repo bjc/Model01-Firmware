@@ -1,43 +1,15 @@
-// -*- mode: c++ -*-
-// Copyright 2016 Keyboardio, inc. <jesse@keyboard.io>
-// See "LICENSE" for license details
-
 #ifndef BUILD_INFORMATION
 #define BUILD_INFORMATION "locally built"
 #endif
 
-
-/**
- * These #include directives pull in the Kaleidoscope firmware core,
- * as well as the Kaleidoscope plugins we use in the Model 01's firmware
- */
-
-
-// The Kaleidoscope core
 #include <Kaleidoscope.h>
-
-// Support for macros
 #include <Kaleidoscope-Macros.h>
-
-// Support for controlling the keyboard's LEDs
 #include <Kaleidoscope-LEDControl.h>
-
-// Support for "Numpad" mode, which is mostly just the Numpad specific LED mode
 #include <Kaleidoscope-NumPad.h>
-
-// Support for an "LED off mode"
 #include <LED-Off.h>
-
-// Support for Keyboardio's internal keyboard testing mode
 #include <Kaleidoscope-Model01-TestMode.h>
-
-// Support for host power management (suspend & wakeup)
 #include <Kaleidoscope-HostPowerManagement.h>
-
-// Support for magic combos (key chords that trigger an action)
 #include <Kaleidoscope-MagicCombo.h>
-
-// Support for USB quirks, like changing the key state report protocol
 #include <Kaleidoscope-USB-Quirks.h>
 
 #include <Kaleidoscope-HostOS.h>
@@ -49,69 +21,41 @@
 #include <Kaleidoscope-MacrosOnTheFly.h>
 #include <Kaleidoscope-LEDEffect-DigitalRain.h>
 #include <Kaleidoscope-LED-Wavepool.h>
-
-/** This 'enum' is a list of all the macros used by the Model 01's firmware
-  * The names aren't particularly important. What is important is that each
-  * is unique.
-  *
-  * These are the names of your macros. They'll be used in two places.
-  * The first is in your keymap definitions. There, you'll use the syntax
-  * `M(MACRO_NAME)` to mark a specific keymap position as triggering `MACRO_NAME`
-  *
-  * The second usage is in the 'switch' statement in the `macroAction` function.
-  * That switch statement actually runs the code associated with a macro when
-  * a macro key is pressed.
-  */
+#include <Kaleidoscope-LayerHighlighter.h>
 
 enum { MACRO_VERSION_INFO,
-       MACRO_ANY
+       MACRO_ANY,
+       POG_CHAMP,
+       LUL,
+       ZZZ,
+       GIVE_PLZ,
+       TAKE_NRG,
+       SEEMS_GOOD
      };
 
+enum { PRIMARY, FUNCTION, NUMPAD, EMOTES }; // layers
 
+typedef struct {
+  uint8_t index;
+  const char *string;
+} emote;
 
-/** The Model 01's key layouts are defined as 'keymaps'. By default, there are three
-  * keymaps: The standard QWERTY keymap, the "Function layer" keymap and the "Numpad"
-  * keymap.
-  *
-  * Each keymap is defined as a list using the 'KEYMAP_STACKED' macro, built
-  * of first the left hand's layout, followed by the right hand's layout.
-  *
-  * Keymaps typically consist mostly of `Key_` definitions. There are many, many keys
-  * defined as part of the USB HID Keyboard specification. You can find the names
-  * (if not yet the explanations) for all the standard `Key_` defintions offered by
-  * Kaleidoscope in these files:
-  *    https://github.com/keyboardio/Kaleidoscope/blob/master/src/key_defs_keyboard.h
-  *    https://github.com/keyboardio/Kaleidoscope/blob/master/src/key_defs_consumerctl.h
-  *    https://github.com/keyboardio/Kaleidoscope/blob/master/src/key_defs_sysctl.h
-  *    https://github.com/keyboardio/Kaleidoscope/blob/master/src/key_defs_keymaps.h
-  *
-  * Additional things that should be documented here include
-  *   using ___ to let keypresses fall through to the previously active layer
-  *   using XXX to mark a keyswitch as 'blocked' on this layer
-  *   using ShiftToLayer() and LockLayer() keys to change the active keymap.
-  *   the special nature of the PROG key
-  *   keeping NUM and FN consistent and accessible on all layers
-  *
-  *
-  * The "keymaps" data structure is a list of the keymaps compiled into the firmware.
-  * The order of keymaps in the list is important, as the ShiftToLayer(#) and LockLayer(#)
-  * macros switch to key layers based on this list.
-  *
-  *
+const char pogChamp[] PROGMEM = "PogChamp";
+const char lul[] PROGMEM = "supert25LUL";
+const char zzz[] PROGMEM = "plasmoWife";
+const char givePLZ[] PROGMEM = "GivePLZ";
+const char takeNRG[] PROGMEM = "TakeNRG";
+const char seemsGood[] PROGMEM = "SeemsGood";
 
-  * A key defined as 'ShiftToLayer(FUNCTION)' will switch to FUNCTION while held.
-  * Similarly, a key defined as 'LockLayer(NUMPAD)' will switch to NUMPAD when tapped.
-  */
-
-/**
-  * Layers are "0-indexed" -- That is the first one is layer 0. The second one is layer 1.
-  * The third one is layer 2.
-  * This 'enum' lets us use names like QWERTY, FUNCTION, and NUMPAD in place of
-  * the numbers 0, 1 and 2.
-  *
-  */
-
-enum { PRIMARY, NUMPAD, FUNCTION }; // layers
+static const emote emotes[] = {
+  { POG_CHAMP, pogChamp },
+  { LUL, lul },
+  { ZZZ, zzz },
+  { GIVE_PLZ, givePLZ },
+  { TAKE_NRG, takeNRG },
+  { SEEMS_GOOD, seemsGood },
+  { 255, NULL }
+};
 
 // *INDENT-OFF*
 
@@ -124,14 +68,29 @@ KEYMAPS(
    Key_LeftBracket, Key_Backspace, LSHIFT(Key_LeftBracket), LSHIFT(Key_9),
    ShiftToLayer(FUNCTION),
 
-   SYSTER,       Key_6, Key_7, Key_8, Key_9, Key_0, LockLayer(NUMPAD),
-   Key_Enter,    Key_F, Key_G, Key_C, Key_R, Key_L, Key_Slash,
-                 Key_D, Key_H, Key_T, Key_N, Key_S, Key_Minus,
-   Key_RightGui, Key_B, Key_M, Key_W, Key_V, Key_Z, Key_Equals,
+   LockLayer(EMOTES), Key_6, Key_7, Key_8, Key_9, Key_0, LockLayer(NUMPAD),
+   Key_Enter,         Key_F, Key_G, Key_C, Key_R, Key_L, Key_Slash,
+                      Key_D, Key_H, Key_T, Key_N, Key_S, Key_Minus,
+   SYSTER,            Key_B, Key_M, Key_W, Key_V, Key_Z, Key_Equals,
    LSHIFT(Key_0), LSHIFT(Key_RightBracket), Key_Spacebar, Key_RightBracket,
    ShiftToLayer(FUNCTION)),
 
-  [NUMPAD] =  KEYMAP_STACKED
+  [FUNCTION] = KEYMAP_STACKED
+  (___,       Key_F1,           Key_F2,        Key_F3,        Key_F4,                     Key_F5,                  Key_CapsLock,
+   Key_Tab,   ___,              Key_PageUp,    Key_UpArrow,   Key_PageDown,               Key_Home,                ___,
+   Key_Copy,  ___,              Key_LeftArrow, Key_DownArrow, Key_RightArrow,             Key_End,
+   Key_Paste, Key_PrintScreen,  Key_Insert,    ___,           Consumer_ScanPreviousTrack, Consumer_PlaySlashPause, Consumer_ScanNextTrack,
+   ___, Key_Delete, ___, ___,
+   ___,
+
+   ___,               Key_F6,        Key_F7,                   Key_F8,          Key_F9,         Key_F10,       Key_F11,
+   ___,               Key_Home,      Key_PageUp,               Key_UpArrow,     Key_PageDown,   ___,           Key_F12,
+                      Key_End,       Key_LeftArrow,            Key_DownArrow,   Key_RightArrow, ___,           ___,
+   Key_PcApplication, Consumer_Mute, Consumer_VolumeDecrement, Consumer_VolumeIncrement, ___,   Key_Backslash, Key_Pipe,
+   ___, ___, Key_Enter, ___,
+   ___),
+
+  [NUMPAD] = KEYMAP_STACKED
   (___, ___, ___, ___, ___, ___, ___,
    ___, ___, ___, ___, ___, ___, ___,
    ___, ___, ___, ___, ___, ___,
@@ -146,19 +105,19 @@ KEYMAPS(
    ___, ___, ___, ___,
    ___),
 
-  [FUNCTION] =  KEYMAP_STACKED
-  (___,       Key_F1,           Key_F2,        Key_F3,        Key_F4,                     Key_F5,                  Key_CapsLock,
-   Key_Tab,   ___,              Key_PageUp,    Key_UpArrow,   Key_PageDown,               Key_Home,                ___,
-   Key_Copy,  ___,              Key_LeftArrow, Key_DownArrow, Key_RightArrow,             Key_End,
-   Key_Paste, Key_PrintScreen,  Key_Insert,    ___,           Consumer_ScanPreviousTrack, Consumer_PlaySlashPause, Consumer_ScanNextTrack,
-   ___, Key_Delete, ___, ___,
+  [EMOTES] =  KEYMAP_STACKED
+  (___, ___,    ___, ___, ___, ___, ___,
+   ___, ___,    ___, ___, ___, ___, ___,
+   ___, ___,    ___, ___, ___, M(SEEMS_GOOD),
+   ___, M(ZZZ), ___, ___, ___, ___, ___,
+   ___, ___, ___, ___,
    ___,
 
-   ___,               Key_F6,        Key_F7,                   Key_F8,          Key_F9,         Key_F10,       Key_F11,
-   ___,               Key_Home,      Key_PageUp,               Key_UpArrow,     Key_PageDown,   ___,           Key_F12,
-                      Key_End,       Key_LeftArrow,            Key_DownArrow,   Key_RightArrow, ___,           ___,
-   Key_PcApplication, Consumer_Mute, Consumer_VolumeDecrement, Consumer_VolumeIncrement, ___,   Key_Backslash, Key_Pipe,
-   ___, ___, Key_Enter, ___,
+   ___, ___, ___, ___,         ___,         ___,          ___,
+   ___, ___, ___, ___,         ___,         M(POG_CHAMP), ___,
+        ___, ___, ___,         M(LUL),      ___,          ___,
+   ___, ___, ___, M(GIVE_PLZ), M(TAKE_NRG), ___,          ___,
+   ___, ___, ___, ___,
    ___)
 )
 
@@ -193,124 +152,20 @@ static void anyKeyMacro(uint8_t keyState) {
     kaleidoscope::hid::pressKey(lastKey);
 }
 
-const char keyToChar(Key key) {
-  switch (key.keyCode) {
-  case Key_A.keyCode ... Key_Z.keyCode:
-    return 'a' + (key.keyCode - Key_A.keyCode);
-  case Key_1.keyCode ... Key_0.keyCode:
-    return '1' + (key.keyCode - Key_1.keyCode);
-  case Key_Minus.keyCode:
-    return '-';
-  case Key_Equals.keyCode:
-    return '=';
-  case Key_LeftBracket.keyCode:
-    return '[';
-  case Key_RightBracket.keyCode:
-    return ']';
-  case Key_Backslash.keyCode:
-    return '\\';
-  case Key_Semicolon.keyCode:
-    return ';';
-  case Key_Quote.keyCode:
-    return '\'';
-  case Key_Backtick.keyCode:
-    return '`';
-  case Key_KeypadLeftParen.keyCode:
-    return '(';
-  case Key_KeypadRightParen.keyCode:
-    return ')';
-  case Key_Slash.keyCode:
-    return '/';
-  }
-
-  return 0;
-}
-
-void systerAction(kaleidoscope::Syster::action_t action, const char *symbol) {
-  switch (action) {
-  case kaleidoscope::Syster::StartAction:
-    Unicode.type(0x2328);
-    break;
-
-  case kaleidoscope::Syster::EndAction:
-    handleKeyswitchEvent(Key_Backspace, UNKNOWN_KEYSWITCH_LOCATION, IS_PRESSED | INJECTED);
-    kaleidoscope::hid::sendKeyboardReport();
-    handleKeyswitchEvent(Key_Backspace, UNKNOWN_KEYSWITCH_LOCATION, WAS_PRESSED | INJECTED);
-    kaleidoscope::hid::sendKeyboardReport();
-    break;
-
-  case kaleidoscope::Syster::SymbolAction:
-    Serial.print("systerAction = ");
-    Serial.println(symbol);
-    if (strcmp(symbol, "coffee") == 0) {
-      Unicode.type(0x2615);
-    } else if (strcmp(symbol, "=/") == 0) { // =/
-      Unicode.type(0x1f615);
-    } else if (strcmp(symbol, "=9") == 0) { // =(
-      Unicode.type(0x1f641);
-    } else if (strcmp(symbol, "=:") == 0) { // =)
-      Unicode.type(0x1f642);
-    } else if (strcmp(symbol, "9=") == 0) { // (=
-      Unicode.type(0x1f643);
-    } else if (strcmp(symbol, "=p") == 0) { // =P
-      Unicode.type(0x1f61b);
-    } else if (strcmp(symbol, "=x") == 0) { // =x
-      Unicode.type(0x1f636);
-    } else if (strcmp(symbol, "b:") == 0) { // B)
-      Unicode.type(0x1f60e);
-    } else if (strcmp(symbol, ";:") == 0) { // ;)
-      Unicode.type(0x1f609);
-    } else if (strcmp(symbol, "1::") == 0) { // 100
-      Unicode.type(0x1f4af);
-    } else if (strcmp(symbol, "eye") == 0) {
-      Unicode.type(0x1f440);
-    } else if (strcmp(symbol, "heye") == 0) {
-      Unicode.type(0x1f60d);
-    } else if (strcmp(symbol, "think") == 0) {
-      Unicode.type(0x1f914);
-    } else if (strcmp(symbol, "party") == 0) {
-      Unicode.type(0x1f389);
-    } else if (strcmp(symbol, "flex") == 0) {
-      Unicode.type(0x1f4aa);
-    } else if (strcmp(symbol, "pray") == 0) {
-      Unicode.type(0x1f64f);
-    } else if (strcmp(symbol, "kiss") == 0) {
-      Unicode.type(0x1f618);
-    } else if (strcmp(symbol, "rip") == 0) {
-      Unicode.type(0x26b0);
-    } else if (strcmp(symbol, "dead") == 0) {
-      Unicode.type(0x1f480);
-    } else if (strcmp(symbol, "ok") == 0) {
-      Unicode.type(0x1f58f);
-    } else if (strcmp(symbol, "yes") == 0) {
-      Unicode.type(0x1f592);
-    } else if (strcmp(symbol, "no") == 0) {
-      Unicode.type(0x1f593);
-    } else if (strcmp(symbol, "fu") == 0) {
-      Unicode.type(0x1f595);
-    } else if (strcmp(symbol, "spy") == 0) {
-      Unicode.type(0x1f575);
+const macro_t *emoteMacro(uint8_t macroIndex, uint8_t keyState) {
+  if (keyToggledOn(keyState)) {
+    for (int i = 0; emotes[i].index != 255; i++) {
+      if (emotes[i].index == macroIndex) {
+        Macros.type(emotes[i].string);
+        return MACRO_NONE;
+      }
     }
-    break;
   }
+  return MACRO_NONE;
 }
-
-
-/** macroAction dispatches keymap events that are tied to a macro
-    to that macro. It takes two uint8_t parameters.
-
-    The first is the macro being called (the entry in the 'enum' earlier in this file).
-    The second is the state of the keyswitch. You can use the keyswitch state to figure out
-    if the key has just been toggled on, is currently pressed or if it's just been released.
-
-    The 'switch' statement should have a 'case' for each entry of the macro enum.
-    Each 'case' statement should call out to a function to handle the macro in question.
-
- */
 
 const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
   switch (macroIndex) {
-
   case MACRO_VERSION_INFO:
     versionInfoMacro(keyState);
     break;
@@ -318,11 +173,13 @@ const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
   case MACRO_ANY:
     anyKeyMacro(keyState);
     break;
+
+  default:
+    emoteMacro(macroIndex, keyState);
   }
+
   return MACRO_NONE;
 }
-
-
 
 /** toggleLedsOnSuspendResume toggles the LEDs off when the host goes to sleep,
  * and turns them back on when it wakes up.
@@ -380,6 +237,8 @@ USE_MAGIC_COMBOS({.action = toggleKeyboardProtocol,
                   .keys = { R3C6, R2C6, R3C7 }
                  });
 
+LayerHighlighter emoteHighlighter(EMOTES);
+
 // First, tell Kaleidoscope which plugins you want to use.
 // The order can be important. For example, LED effects are
 // added in the order they're listed here.
@@ -398,6 +257,7 @@ KALEIDOSCOPE_INIT_PLUGINS(HostOS,
                           // lighting up the 'numpad' mode with a
                           // custom LED effect
                           NumPad,
+                          emoteHighlighter,
 
                           // The macros plugin adds support for macros
                           Macros,
@@ -425,21 +285,25 @@ KALEIDOSCOPE_INIT_PLUGINS(HostOS,
 void setup() {
   Serial.begin(9600);
 
-  QUKEYS(kaleidoscope::Qukey(0, 3, 7, Key_LeftShift),
-         kaleidoscope::Qukey(0, 3, 8, Key_RightShift),
-         kaleidoscope::Qukey(0, 0, 7, Key_LeftControl),
-         kaleidoscope::Qukey(0, 0, 8, Key_RightControl),
-         kaleidoscope::Qukey(0, 2, 7, Key_LeftAlt),
-         kaleidoscope::Qukey(0, 2, 8, Key_RightAlt));
-  Qukeys.setTimeout(200);
-  Qukeys.setReleaseDelay(20);
-
   // First, call Kaleidoscope's internal setup function
   Kaleidoscope.setup();
 
   // While we hope to improve this in the future, the NumPad plugin
   // needs to be explicitly told which keymap layer is your numpad layer
   NumPad.numPadLayer = NUMPAD;
+
+  emoteHighlighter.lockHue = 100;
+  emoteHighlighter.color = CRGB(160, 160, 0);
+
+  QUKEYS(kaleidoscope::Qukey(0, 3, 7, Key_LeftShift),
+         kaleidoscope::Qukey(0, 3, 8, Key_RightShift),
+         kaleidoscope::Qukey(0, 0, 7, Key_LeftControl),
+         kaleidoscope::Qukey(0, 0, 8, Key_RightControl),
+         kaleidoscope::Qukey(0, 2, 7, Key_LeftAlt),
+         kaleidoscope::Qukey(0, 2, 8, Key_RightAlt),
+         kaleidoscope::Qukey(0, 2, 9, Key_RightGui));
+  Qukeys.setTimeout(200);
+  Qukeys.setReleaseDelay(20);
 }
 
 void loop() {
