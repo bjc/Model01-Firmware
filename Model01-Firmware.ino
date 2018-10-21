@@ -26,7 +26,7 @@
 
 enum { MACRO_VERSION_INFO,
        MACRO_ANY,
-       POG_CHAMP,
+       WOW,
        LUL,
        ZZZ,
        GIVE_PLZ,
@@ -42,7 +42,7 @@ typedef struct {
   const char *string;
 } emote;
 
-const char pogChamp[] PROGMEM = "PogChamp";
+const char wow[] PROGMEM = "eeriedWow";
 const char lul[] PROGMEM = "supert25LUL";
 const char zzz[] PROGMEM = "plasmoWife";
 const char givePLZ[] PROGMEM = "GivePLZ";
@@ -51,7 +51,7 @@ const char seemsGood[] PROGMEM = "SeemsGood";
 const char gasm[] PROGMEM = "kdubGasm";
 
 static const emote emotes[] = {
-  { POG_CHAMP, pogChamp },
+  { WOW, wow },
   { LUL, lul },
   { ZZZ, zzz },
   { GIVE_PLZ, givePLZ },
@@ -117,10 +117,10 @@ KEYMAPS(
    ___, ___, ___, ___,
    ___,
 
-   ___, ___, ___, ___,         ___,         ___,          ___,
-   ___, ___, ___, ___,         ___,         M(POG_CHAMP), ___,
-        ___, ___, ___,         M(LUL),      ___,          ___,
-   ___, ___, ___, M(GIVE_PLZ), M(TAKE_NRG), ___,          ___,
+   ___, ___, ___, ___,         ___,         ___,    ___,
+   ___, ___, ___, ___,         ___,         M(WOW), ___,
+        ___, ___, ___,         M(LUL),      ___,    ___,
+   ___, ___, ___, M(GIVE_PLZ), M(TAKE_NRG), ___,    ___,
    ___, ___, ___, ___,
    ___)
 )
