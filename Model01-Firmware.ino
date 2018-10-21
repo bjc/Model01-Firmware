@@ -22,6 +22,7 @@
 #include <Kaleidoscope-LEDEffect-DigitalRain.h>
 #include <Kaleidoscope-LED-Wavepool.h>
 #include <Kaleidoscope-LayerHighlighter.h>
+#include <Kaleidoscope-Heatmap.h>
 
 enum { MACRO_VERSION_INFO,
        MACRO_ANY,
@@ -30,7 +31,8 @@ enum { MACRO_VERSION_INFO,
        ZZZ,
        GIVE_PLZ,
        TAKE_NRG,
-       SEEMS_GOOD
+       SEEMS_GOOD,
+       GASM
      };
 
 enum { PRIMARY, FUNCTION, NUMPAD, EMOTES }; // layers
@@ -46,6 +48,7 @@ const char zzz[] PROGMEM = "plasmoWife";
 const char givePLZ[] PROGMEM = "GivePLZ";
 const char takeNRG[] PROGMEM = "TakeNRG";
 const char seemsGood[] PROGMEM = "SeemsGood";
+const char gasm[] PROGMEM = "kdubGasm";
 
 static const emote emotes[] = {
   { POG_CHAMP, pogChamp },
@@ -54,6 +57,7 @@ static const emote emotes[] = {
   { GIVE_PLZ, givePLZ },
   { TAKE_NRG, takeNRG },
   { SEEMS_GOOD, seemsGood },
+  { GASM, gasm },
   { 255, NULL }
 };
 
@@ -84,7 +88,7 @@ KEYMAPS(
    ___,
 
    ___,               Key_F6,        Key_F7,                   Key_F8,          Key_F9,         Key_F10,       Key_F11,
-   ___,               Key_Home,      Key_PageUp,               Key_UpArrow,     Key_PageDown,   ___,           Key_F12,
+   Key_ScrollLock,    Key_Home,      Key_PageUp,               Key_UpArrow,     Key_PageDown,   ___,           Key_F12,
                       Key_End,       Key_LeftArrow,            Key_DownArrow,   Key_RightArrow, ___,           ___,
    Key_PcApplication, Consumer_Mute, Consumer_VolumeDecrement, Consumer_VolumeIncrement, ___,   Key_Backslash, Key_Pipe,
    ___, ___, Key_Enter, ___,
@@ -106,10 +110,10 @@ KEYMAPS(
    ___),
 
   [EMOTES] =  KEYMAP_STACKED
-  (___, ___,    ___, ___, ___, ___, ___,
-   ___, ___,    ___, ___, ___, ___, ___,
-   ___, ___,    ___, ___, ___, M(SEEMS_GOOD),
-   ___, M(ZZZ), ___, ___, ___, ___, ___,
+  (___, ___,    ___, ___,     ___, ___, ___,
+   ___, ___,    ___, ___,     ___, ___, ___,
+   ___, ___,    ___, ___,     ___, M(SEEMS_GOOD),
+   ___, M(ZZZ), ___, M(GASM), ___, ___, ___,
    ___, ___, ___, ___,
    ___,
 
@@ -252,6 +256,7 @@ KALEIDOSCOPE_INIT_PLUGINS(HostOS,
                           LEDControl,
                           WavepoolEffect,
                           LEDDigitalRainEffect,
+                          HeatmapEffect,
 
                           // The numpad plugin is responsible for
                           // lighting up the 'numpad' mode with a
