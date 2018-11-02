@@ -65,6 +65,8 @@ void systerAction(kaleidoscope::Syster::action_t action, const char *symbol) {
       Unicode.type(0x1f595);
     } else if (strcmp(symbol, "spy") == 0) {
       Unicode.type(0x1f575);
+    } else if (strcmp(symbol, "ooo") == 0) {
+      Unicode.type(0x1f47b);
     }
     break;
   }

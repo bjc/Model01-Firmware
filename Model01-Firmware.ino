@@ -1,3 +1,5 @@
+// -*- mode: c++ -*-
+
 #ifndef BUILD_INFORMATION
 #define BUILD_INFORMATION "locally built"
 #endif
@@ -6,14 +8,12 @@
 #include <Kaleidoscope-Macros.h>
 #include <Kaleidoscope-LEDControl.h>
 #include <Kaleidoscope-NumPad.h>
-#include <LED-Off.h>
 #include <Kaleidoscope-Model01-TestMode.h>
 #include <Kaleidoscope-HostPowerManagement.h>
 #include <Kaleidoscope-MagicCombo.h>
 #include <Kaleidoscope-USB-Quirks.h>
-
+#include <Kaleidoscope-EEPROM-Settings.h>
 #include <Kaleidoscope-HostOS.h>
-#include <Kaleidoscope/HostOS-select.h>
 #include <Kaleidoscope-Syster.h>
 #include <Kaleidoscope-Unicode.h>
 #include <kaleidoscope/hid.h>
@@ -246,7 +246,8 @@ LayerHighlighter emoteHighlighter(EMOTES);
 // First, tell Kaleidoscope which plugins you want to use.
 // The order can be important. For example, LED effects are
 // added in the order they're listed here.
-KALEIDOSCOPE_INIT_PLUGINS(HostOS,
+KALEIDOSCOPE_INIT_PLUGINS(EEPROMSettings,
+                          HostOS,
                           Unicode,
                           Qukeys,
                           MacrosOnTheFly,
@@ -289,6 +290,9 @@ KALEIDOSCOPE_INIT_PLUGINS(HostOS,
 
 void setup() {
   Serial.begin(9600);
+
+  // Necessary for FreeBSD, as it doesn't support NKRO.
+  BootKeyboard.default_protocol = HID_BOOT_PROTOCOL;
 
   // First, call Kaleidoscope's internal setup function
   Kaleidoscope.setup();
