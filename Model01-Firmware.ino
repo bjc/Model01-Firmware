@@ -13,6 +13,7 @@
 #include <Kaleidoscope-MagicCombo.h>
 #include <Kaleidoscope-USB-Quirks.h>
 #include <Kaleidoscope-EEPROM-Settings.h>
+#include <Kaleidoscope-EEPROM-Keymap.h>
 #include <Kaleidoscope-HostOS.h>
 #include <Kaleidoscope-Syster.h>
 #include <Kaleidoscope-Unicode.h>
@@ -149,11 +150,14 @@ static void versionInfoMacro(uint8_t keyState) {
 
 static void anyKeyMacro(uint8_t keyState) {
   static Key lastKey;
-  if (keyToggledOn(keyState))
+  bool toggledOn = false;
+  if (keyToggledOn(keyState)) {
     lastKey.keyCode = Key_A.keyCode + (uint8_t)(millis() % 36);
+    toggledOn = true;
+  }
 
   if (keyIsPressed(keyState))
-    kaleidoscope::hid::pressKey(lastKey);
+    kaleidoscope::hid::pressKey(lastKey, toggledOn);
 }
 
 const macro_t *emoteMacro(uint8_t macroIndex, uint8_t keyState) {
