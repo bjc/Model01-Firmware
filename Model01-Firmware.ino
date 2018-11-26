@@ -21,7 +21,9 @@
 #include <Kaleidoscope-Qukeys.h>
 #include <Kaleidoscope-MacrosOnTheFly.h>
 #include <Kaleidoscope-LEDEffect-DigitalRain.h>
-#include <Kaleidoscope-LED-Wavepool.h>
+#include <Kaleidoscope-LEDEffect-BootGreeting.h>
+#include <Kaleidoscope-LEDEffect-Breathe.h>
+#include <Kaleidoscope-IdleLEDs.h>
 #include <Kaleidoscope-LayerHighlighter.h>
 #include <Kaleidoscope-Heatmap.h>
 
@@ -68,8 +70,8 @@ KEYMAPS(
   [PRIMARY] = KEYMAP_STACKED
   (Key_Escape,      Key_1,         Key_2,       Key_3,      Key_4, Key_5, Key_LEDEffectNext,
    Key_Backtick,    Key_Quote,     Key_Comma,   Key_Period, Key_P, Key_Y, Key_Tab,
-   Key_MacroRec,    Key_A,         Key_O,       Key_E,      Key_U, Key_I,
-   Key_MacroPlay,   Key_Semicolon, Key_Q,       Key_J,      Key_K, Key_X, Key_LeftGui,
+   Key_PageUp,      Key_A,         Key_O,       Key_E,      Key_U, Key_I,
+   Key_PageDown,    Key_Semicolon, Key_Q,       Key_J,      Key_K, Key_X, Key_LeftGui,
    Key_LeftBracket, Key_Backspace, LSHIFT(Key_LeftBracket), LSHIFT(Key_9),
    ShiftToLayer(FUNCTION),
 
@@ -245,7 +247,7 @@ USE_MAGIC_COMBOS({.action = toggleKeyboardProtocol,
                   .keys = { R3C6, R2C6, R3C7 }
                  });
 
-LayerHighlighter emoteHighlighter(EMOTES);
+static LayerHighlighter emoteHighlighter(EMOTES);
 
 // First, tell Kaleidoscope which plugins you want to use.
 // The order can be important. For example, LED effects are
@@ -254,13 +256,14 @@ KALEIDOSCOPE_INIT_PLUGINS(EEPROMSettings,
                           HostOS,
                           Unicode,
                           Qukeys,
-                          MacrosOnTheFly,
+                          //MacrosOnTheFly,
                           Syster,
                           // LEDControl provides support for other LED
                           // modes
                           LEDControl,
-                          WavepoolEffect,
-                          LEDDigitalRainEffect,
+                          BootGreetingEffect,
+                          IdleLEDs,
+                          LEDBreatheEffect,
                           HeatmapEffect,
 
                           // The numpad plugin is responsible for
@@ -307,6 +310,7 @@ void setup() {
 
   emoteHighlighter.lockHue = 100;
   emoteHighlighter.color = CRGB(255, 255, 0);
+  LEDBreatheEffect.hue = 212;
 
   QUKEYS(kaleidoscope::Qukey(0, 3, 7, Key_LeftShift),
          kaleidoscope::Qukey(0, 3, 8, Key_RightShift),
@@ -317,6 +321,9 @@ void setup() {
          kaleidoscope::Qukey(0, 2, 9, Key_RightGui));
   Qukeys.setTimeout(200);
   Qukeys.setReleaseDelay(20);
+
+  // Turn off LEDs when keyboard is idle for 300 seconds.
+  IdleLEDs.idle_time_limit = 300;
 }
 
 void loop() {
