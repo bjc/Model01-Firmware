@@ -18,13 +18,12 @@
 #include <Kaleidoscope-Syster.h>
 #include <Kaleidoscope-Unicode.h>
 #include <kaleidoscope/hid.h>
-#include <Kaleidoscope-Qukeys.h>
 #include <Kaleidoscope-MacrosOnTheFly.h>
-#include <Kaleidoscope-LEDEffect-DigitalRain.h>
 #include <Kaleidoscope-LEDEffect-BootGreeting.h>
 #include <Kaleidoscope-LEDEffect-Breathe.h>
 #include <Kaleidoscope-IdleLEDs.h>
 #include <Kaleidoscope-LayerHighlighter.h>
+#include <Kaleidoscope-SpaceCadet.h>
 #include <Kaleidoscope-Heatmap.h>
 
 enum { MACRO_VERSION_INFO,
@@ -75,14 +74,16 @@ KEYMAPS(
    Key_Backtick,    Key_Quote,     Key_Comma,   Key_Period, Key_P, Key_Y, Key_Tab,
    Key_PageUp,      Key_A,         Key_O,       Key_E,      Key_U, Key_I,
    Key_PageDown,    Key_Semicolon, Key_Q,       Key_J,      Key_K, Key_X, Key_LeftGui,
-   Key_LeftBracket, Key_Backspace, LSHIFT(Key_LeftBracket), LSHIFT(Key_9),
+   //Key_LeftBracket, Key_Backspace, LSHIFT(Key_LeftBracket), LSHIFT(Key_9),
+   Key_LeftControl, Key_Backspace, Key_LeftAlt, Key_LeftShift,
    ShiftToLayer(FUNCTION),
 
    LockLayer(EMOTES), Key_6, Key_7, Key_8, Key_9, Key_0, LockLayer(NUMPAD),
    Key_Enter,         Key_F, Key_G, Key_C, Key_R, Key_L, Key_Slash,
                       Key_D, Key_H, Key_T, Key_N, Key_S, Key_Minus,
    SYSTER,            Key_B, Key_M, Key_W, Key_V, Key_Z, Key_Equals,
-   LSHIFT(Key_0), LSHIFT(Key_RightBracket), Key_Spacebar, Key_RightBracket,
+   //LSHIFT(Key_0), LSHIFT(Key_RightBracket), Key_Spacebar, Key_RightBracket,
+   Key_RightShift, Key_RightAlt, Key_Spacebar, Key_RightControl,
    ShiftToLayer(FUNCTION)),
 
   [FUNCTION] = KEYMAP_STACKED
@@ -258,7 +259,7 @@ static LayerHighlighter emoteHighlighter(EMOTES);
 KALEIDOSCOPE_INIT_PLUGINS(EEPROMSettings,
                           HostOS,
                           Unicode,
-                          Qukeys,
+                          SpaceCadet,
                           //MacrosOnTheFly,
                           Syster,
                           // LEDControl provides support for other LED
@@ -302,7 +303,7 @@ void setup() {
   Serial.begin(9600);
 
   // Necessary for FreeBSD, as it doesn't support NKRO.
-  BootKeyboard.default_protocol = HID_BOOT_PROTOCOL;
+  //BootKeyboard.default_protocol = HID_BOOT_PROTOCOL;
 
   // First, call Kaleidoscope's internal setup function
   Kaleidoscope.setup();
@@ -315,15 +316,16 @@ void setup() {
   emoteHighlighter.color = CRGB(255, 255, 0);
   LEDBreatheEffect.hue = 212;
 
-  QUKEYS(kaleidoscope::Qukey(0, 3, 7, Key_LeftShift),
-         kaleidoscope::Qukey(0, 3, 8, Key_RightShift),
-         kaleidoscope::Qukey(0, 0, 7, Key_LeftControl),
-         kaleidoscope::Qukey(0, 0, 8, Key_RightControl),
-         kaleidoscope::Qukey(0, 2, 7, Key_LeftAlt),
-         kaleidoscope::Qukey(0, 2, 8, Key_RightAlt),
-         kaleidoscope::Qukey(0, 2, 9, Key_RightGui));
-  Qukeys.setTimeout(200);
-  Qukeys.setReleaseDelay(20);
+  static kaleidoscope::plugin::SpaceCadet::KeyBinding spaceCadetMap[] = {
+    {Key_LeftControl,  Key_LeftBracket,       250},
+    {Key_RightControl, Key_RightBracket,      250},
+    {Key_LeftAlt,      Key_LeftCurlyBracket,  250},
+    {Key_RightAlt,     Key_RightCurlyBracket, 250},
+    {Key_LeftShift,    Key_LeftParen,         250},
+    {Key_RightShift,   Key_RightParen,        250},
+    SPACECADET_MAP_END
+  };
+  SpaceCadet.map = spaceCadetMap;
 
   // Turn off LEDs when keyboard is idle for 300 seconds.
   IdleLEDs.idle_time_limit = 300;
