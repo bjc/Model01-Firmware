@@ -325,7 +325,7 @@ void setup() {
          kaleidoscope::plugin::Qukey(0, 2, 8, Key_RightAlt),
          kaleidoscope::plugin::Qukey(0, 2, 9, Key_RightGui));
   Qukeys.setTimeout(200);
-  Qukeys.setReleaseDelay(20);
+  Qukeys.setReleaseDelay(100);
 
   // static kaleidoscope::plugin::SpaceCadet::KeyBinding spaceCadetMap[] = {
   //   {Key_LeftControl,  Key_LeftBracket,       250},
