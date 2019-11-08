@@ -144,6 +144,7 @@ static void versionInfoMacro(uint8_t keyState) {
   if (keyToggledOn(keyState)) {
     Macros.type(PSTR("Keyboardio Model 01 - Kaleidoscope "));
     Macros.type(PSTR(BUILD_INFORMATION));
+    Unicode.type(0x2615);
   }
 }
 
@@ -257,7 +258,7 @@ static LayerHighlighter emoteHighlighter(EMOTES);
 // The order can be important. For example, LED effects are
 // added in the order they're listed here.
 KALEIDOSCOPE_INIT_PLUGINS(EEPROMSettings,
-                          HostOS,
+                          //HostOS,
                           Unicode,
                           Qukeys,
                           //SpaceCadet,
@@ -266,8 +267,8 @@ KALEIDOSCOPE_INIT_PLUGINS(EEPROMSettings,
                           // LEDControl provides support for other LED
                           // modes
                           LEDControl,
-                          BootGreetingEffect,
                           IdleLEDs,
+                          BootGreetingEffect,
                           LEDBreatheEffect,
                           HeatmapEffect,
 
@@ -283,7 +284,7 @@ KALEIDOSCOPE_INIT_PLUGINS(EEPROMSettings,
                           // The HostPowerManagement plugin allows us
                           // to turn LEDs off when then host goes to
                           // sleep, and resume them when it wakes up.
-                          HostPowerManagement,
+                          //HostPowerManagement,
 
                           // The MagicCombo plugin lets you use key
                           // combinations to trigger custom actions -
@@ -304,7 +305,7 @@ void setup() {
   Serial.begin(9600);
 
   // Necessary for FreeBSD, as it doesn't support NKRO.
-  //BootKeyboard.default_protocol = HID_BOOT_PROTOCOL;
+  BootKeyboard.default_protocol = HID_BOOT_PROTOCOL;
 
   // First, call Kaleidoscope's internal setup function
   Kaleidoscope.setup();
@@ -317,31 +318,89 @@ void setup() {
   emoteHighlighter.color = CRGB(255, 255, 0);
   LEDBreatheEffect.hue = 212;
 
-  QUKEYS(kaleidoscope::plugin::Qukey(0, 3, 7, Key_LeftShift),
-         kaleidoscope::plugin::Qukey(0, 3, 8, Key_RightShift),
-         kaleidoscope::plugin::Qukey(0, 0, 7, Key_LeftControl),
-         kaleidoscope::plugin::Qukey(0, 0, 8, Key_RightControl),
-         kaleidoscope::plugin::Qukey(0, 2, 7, Key_LeftAlt),
-         kaleidoscope::plugin::Qukey(0, 2, 8, Key_RightAlt),
-         kaleidoscope::plugin::Qukey(0, 2, 9, Key_RightGui));
-  Qukeys.setTimeout(200);
-  Qukeys.setReleaseDelay(100);
+  QUKEYS(kaleidoscope::plugin::Qukey(0, KeyAddr(3, 7), Key_LeftShift),
+         kaleidoscope::plugin::Qukey(0, KeyAddr(3, 8), Key_RightShift),
+         kaleidoscope::plugin::Qukey(0, KeyAddr(0, 7), Key_LeftControl),
+         kaleidoscope::plugin::Qukey(0, KeyAddr(0, 8), Key_RightControl),
+         kaleidoscope::plugin::Qukey(0, KeyAddr(2, 7), Key_LeftAlt),
+         kaleidoscope::plugin::Qukey(0, KeyAddr(2, 8), Key_RightAlt),
+         kaleidoscope::plugin::Qukey(0, KeyAddr(2, 9), Key_RightGui));
+  Qukeys.setOverlapThreshold(25);
 
-  // static kaleidoscope::plugin::SpaceCadet::KeyBinding spaceCadetMap[] = {
-  //   {Key_LeftControl,  Key_LeftBracket,       250},
-  //   {Key_RightControl, Key_RightBracket,      250},
-  //   {Key_LeftAlt,      Key_LeftCurlyBracket,  250},
-  //   {Key_RightAlt,     Key_RightCurlyBracket, 250},
-  //   {Key_LeftShift,    Key_LeftParen,         250},
-  //   {Key_RightShift,   Key_RightParen,        250},
-  //   SPACECADET_MAP_END
-  // };
-  // SpaceCadet.map = spaceCadetMap;
-
-  // Turn off LEDs when keyboard is idle for 300 seconds.
-  IdleLEDs.idle_time_limit = 300;
+  IdleLEDs.setIdleTimeoutSeconds(300);
 }
 
 void loop() {
   Kaleidoscope.loop();
+}
+
+void systerAction(kaleidoscope::plugin::Syster::action_t action, const char *symbol) {
+  switch (action) {
+  case kaleidoscope::plugin::Syster::StartAction:
+    Unicode.type(0x2328);
+    break;
+
+  case kaleidoscope::plugin::Syster::EndAction:
+    handleKeyswitchEvent(Key_Backspace, UnknownKeyswitchLocation, IS_PRESSED | INJECTED);
+    kaleidoscope::hid::sendKeyboardReport();
+    handleKeyswitchEvent(Key_Backspace, UnknownKeyswitchLocation, WAS_PRESSED | INJECTED);
+    kaleidoscope::hid::sendKeyboardReport();
+    break;
+
+  case kaleidoscope::plugin::Syster::SymbolAction:
+    Serial.print("systerAction = ");
+    Serial.println(symbol);
+    if (strcmp(symbol, "coffee") == 0) {
+      Unicode.type(0x2615);
+    } else if (strcmp(symbol, "=/") == 0) { // =/
+      Unicode.type(0x1f615);
+    } else if (strcmp(symbol, "=9") == 0) { // =(
+      Unicode.type(0x1f641);
+    } else if (strcmp(symbol, "=:") == 0) { // =)
+      Unicode.type(0x1f642);
+    } else if (strcmp(symbol, "9=") == 0) { // (=
+      Unicode.type(0x1f643);
+    } else if (strcmp(symbol, "=p") == 0) { // =P
+      Unicode.type(0x1f61b);
+    } else if (strcmp(symbol, "=x") == 0) { // =x
+      Unicode.type(0x1f636);
+    } else if (strcmp(symbol, "b:") == 0) { // B)
+      Unicode.type(0x1f60e);
+    } else if (strcmp(symbol, ";:") == 0) { // ;)
+      Unicode.type(0x1f609);
+    } else if (strcmp(symbol, "1::") == 0) { // 100
+      Unicode.type(0x1f4af);
+    } else if (strcmp(symbol, "eye") == 0) {
+      Unicode.type(0x1f440);
+    } else if (strcmp(symbol, "heye") == 0) {
+      Unicode.type(0x1f60d);
+    } else if (strcmp(symbol, "think") == 0) {
+      Unicode.type(0x1f914);
+    } else if (strcmp(symbol, "party") == 0) {
+      Unicode.type(0x1f389);
+    } else if (strcmp(symbol, "flex") == 0) {
+      Unicode.type(0x1f4aa);
+    } else if (strcmp(symbol, "pray") == 0) {
+      Unicode.type(0x1f64f);
+    } else if (strcmp(symbol, "kiss") == 0) {
+      Unicode.type(0x1f618);
+    } else if (strcmp(symbol, "rip") == 0) {
+      Unicode.type(0x26b0);
+    } else if (strcmp(symbol, "dead") == 0) {
+      Unicode.type(0x1f480);
+    } else if (strcmp(symbol, "ok") == 0) {
+      Unicode.type(0x1f58f);
+    } else if (strcmp(symbol, "yes") == 0) {
+      Unicode.type(0x1f592);
+    } else if (strcmp(symbol, "no") == 0) {
+      Unicode.type(0x1f593);
+    } else if (strcmp(symbol, "fu") == 0) {
+      Unicode.type(0x1f595);
+    } else if (strcmp(symbol, "spy") == 0) {
+      Unicode.type(0x1f575);
+    } else if (strcmp(symbol, "ooo") == 0) {
+      Unicode.type(0x1f47b);
+    }
+    break;
+  }
 }
