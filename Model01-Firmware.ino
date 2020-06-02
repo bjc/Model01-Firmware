@@ -8,7 +8,7 @@
 #include <Kaleidoscope-Macros.h>
 #include <Kaleidoscope-LEDControl.h>
 #include <Kaleidoscope-NumPad.h>
-#include <Kaleidoscope-Model01-TestMode.h>
+#include <Kaleidoscope-HardwareTestMode.h>
 #include <Kaleidoscope-HostPowerManagement.h>
 #include <Kaleidoscope-MagicCombo.h>
 #include <Kaleidoscope-Qukeys.h>
@@ -19,7 +19,7 @@
 #include <Kaleidoscope-Syster.h>
 #include <Kaleidoscope-Unicode.h>
 #include <kaleidoscope/hid.h>
-#include <Kaleidoscope-MacrosOnTheFly.h>
+//#include <Kaleidoscope-MacrosOnTheFly.h>
 #include <Kaleidoscope-LEDEffect-BootGreeting.h>
 #include <Kaleidoscope-LEDEffect-Breathe.h>
 #include <Kaleidoscope-IdleLEDs.h>
@@ -110,10 +110,10 @@ KEYMAPS(
    ___, ___, ___, ___,
    ___,
 
-   M(MACRO_VERSION_INFO),  ___, Key_Keypad7, Key_Keypad8,   Key_Keypad9,        Key_KeypadSubtract, ___,
-   ___,                    ___, Key_Keypad4, Key_Keypad5,   Key_Keypad6,        Key_KeypadAdd,      ___,
-                           ___, Key_Keypad1, Key_Keypad2,   Key_Keypad3,        Key_Equals,         ___,
-   ___,                    ___, Key_Keypad0, Key_KeypadDot, Key_KeypadMultiply, Key_KeypadDivide,   Key_Enter,
+   M(MACRO_VERSION_INFO),  ___, Key_7, Key_8,      Key_9,              Key_KeypadSubtract, ___,
+   ___,                    ___, Key_4, Key_5,      Key_6,              Key_KeypadAdd,      ___,
+                           ___, Key_1, Key_2,      Key_3,              Key_Equals,         ___,
+   ___,                    ___, Key_0, Key_Period, Key_KeypadMultiply, Key_KeypadDivide,   Key_Enter,
    ___, ___, ___, ___,
    ___),
 
@@ -160,12 +160,12 @@ static void anyKeyMacro(uint8_t keyState) {
   static Key lastKey;
   bool toggledOn = false;
   if (keyToggledOn(keyState)) {
-    lastKey.keyCode = Key_A.keyCode + (uint8_t)(millis() % 36);
+    lastKey.setKeyCode(Key_A.getKeyCode() + (uint8_t)(millis() % 36));
     toggledOn = true;
   }
 
   if (keyIsPressed(keyState))
-    kaleidoscope::hid::pressKey(lastKey, toggledOn);
+    Kaleidoscope.hid().keyboard().pressKey(lastKey, toggledOn);
 }
 
 const macro_t *emoteMacro(uint8_t macroIndex, uint8_t keyState) {
@@ -200,18 +200,15 @@ const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
 /** toggleLedsOnSuspendResume toggles the LEDs off when the host goes to sleep,
  * and turns them back on when it wakes up.
  */
-void toggleLedsOnSuspendResume(kaleidoscope::HostPowerManagement::Event event) {
+void toggleLedsOnSuspendResume(kaleidoscope::plugin::HostPowerManagement::Event event) {
   switch (event) {
-  case kaleidoscope::HostPowerManagement::Suspend:
-    LEDControl.paused = true;
-    LEDControl.set_all_leds_to({0, 0, 0});
-    LEDControl.syncLeds();
+  case kaleidoscope::plugin::HostPowerManagement::Suspend:
+    LEDControl.disable();
     break;
-  case kaleidoscope::HostPowerManagement::Resume:
-    LEDControl.paused = false;
-    LEDControl.refreshAll();
+  case kaleidoscope::plugin::HostPowerManagement::Resume:
+    LEDControl.enable();
     break;
-  case kaleidoscope::HostPowerManagement::Sleep:
+  case kaleidoscope::plugin::HostPowerManagement::Sleep:
     break;
   }
 }
@@ -220,7 +217,7 @@ void toggleLedsOnSuspendResume(kaleidoscope::HostPowerManagement::Event event) {
  * resume, and sleep) to other functions that perform action based on these
  * events.
  */
-void hostPowerManagementEventHandler(kaleidoscope::HostPowerManagement::Event event) {
+void hostPowerManagementEventHandler(kaleidoscope::plugin::HostPowerManagement::Event event) {
   toggleLedsOnSuspendResume(event);
 }
 
@@ -234,10 +231,14 @@ void hostPowerManagementEventHandler(kaleidoscope::HostPowerManagement::Event ev
 enum {
   // Toggle between Boot (6-key rollover; for BIOSes and early boot) and NKRO
   // mode.
-  COMBO_TOGGLE_NKRO_MODE
+  COMBO_TOGGLE_NKRO_MODE,
+  // Enter test mode
+  COMBO_ENTER_TEST_MODE
 };
 
-/** A tiny wrapper, to be used by MagicCombo.
+/** Wrappers, to be used by MagicCombo. **/
+
+/**
  * This simply toggles the keyboard protocol via USBQuirks, and wraps it within
  * a function with an unused argument, to match what MagicCombo expects.
  */
@@ -245,12 +246,23 @@ static void toggleKeyboardProtocol(uint8_t combo_index) {
   USBQuirks.toggleKeyboardProtocol();
 }
 
+/**
+ *  This enters the hardware test mode
+ */
+static void enterHardwareTestMode(uint8_t combo_index) {
+  HardwareTestMode.runTests();
+}
+
+
 /** Magic combo list, a list of key combo and action pairs the firmware should
  * recognise.
  */
-USE_MAGIC_COMBOS([COMBO_TOGGLE_NKRO_MODE] = {.action = toggleKeyboardProtocol,
-                                             // Left Fn + Esc + Shift
-                                             .keys = { R3C6, R2C6, R3C7 }});
+USE_MAGIC_COMBOS({.action = toggleKeyboardProtocol,
+                  // Left Fn + Esc + Shift
+                  .keys = { R3C6, R2C6, R3C7 }},
+                 {.action = enterHardwareTestMode,
+                  // Left Fn + Prog + LED
+                  .keys = { R3C6, R0C0, R0C6 }});
 
 static LayerHighlighter emoteHighlighter(EMOTES);
 
@@ -342,9 +354,9 @@ void systerAction(kaleidoscope::plugin::Syster::action_t action, const char *sym
 
   case kaleidoscope::plugin::Syster::EndAction:
     handleKeyswitchEvent(Key_Backspace, UnknownKeyswitchLocation, IS_PRESSED | INJECTED);
-    kaleidoscope::hid::sendKeyboardReport();
+    Kaleidoscope.hid().keyboard().sendReport();
     handleKeyswitchEvent(Key_Backspace, UnknownKeyswitchLocation, WAS_PRESSED | INJECTED);
-    kaleidoscope::hid::sendKeyboardReport();
+    Kaleidoscope.hid().keyboard().sendReport();
     break;
 
   case kaleidoscope::plugin::Syster::SymbolAction:
@@ -372,6 +384,8 @@ void systerAction(kaleidoscope::plugin::Syster::action_t action, const char *sym
       Unicode.type(0x1f4af);
     } else if (strcmp(symbol, "eye") == 0) {
       Unicode.type(0x1f440);
+
+
     } else if (strcmp(symbol, "heye") == 0) {
       Unicode.type(0x1f60d);
     } else if (strcmp(symbol, "think") == 0) {
