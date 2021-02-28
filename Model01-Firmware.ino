@@ -97,7 +97,7 @@ KEYMAPS(
    Key_ScrollLock,    Key_Home,      Key_PageUp,               Key_UpArrow,     Key_PageDown,   ___,           Key_F12,
                       Key_End,       Key_LeftArrow,            Key_DownArrow,   Key_RightArrow, ___,           ___,
    Key_PcApplication, Consumer_Mute, Consumer_VolumeDecrement, Consumer_VolumeIncrement, ___,   Key_Backslash, Key_Pipe,
-   ___, ___, Key_Enter, ___,
+   ___, ___, ___, ___,
    ___),
 
   [NUMPAD] = KEYMAP_STACKED
