@@ -86,16 +86,16 @@ KEYMAPS(
    ShiftToLayer(FUNCTION)),
 
   [FUNCTION] = KEYMAP_STACKED
-  (___,       Key_F1,           Key_F2,        Key_F3,                     Key_F4,                  Key_F5,                Key_CapsLock,
-   ___,       ___,              Key_PageUp,    Key_UpArrow,                Key_PageDown,            Key_Home,               ___,
-   Key_Copy,  ___,              Key_LeftArrow, Key_DownArrow,              Key_RightArrow,          Key_End,
-   Key_Paste, Key_PrintScreen,  Key_Insert,    Consumer_ScanPreviousTrack, Consumer_PlaySlashPause, Consumer_ScanNextTrack, ___,
+  (___,       Key_F1,          Key_F2,        Key_F3,                     Key_F4,                 Key_F5,                  Key_CapsLock,
+   ___,       ___,             Key_PageUp,    Key_UpArrow,                Key_PageDown,           Key_Home,                ___,
+   Key_Copy,  ___,             Key_LeftArrow, Key_DownArrow,              Key_RightArrow,         Key_End,
+   Key_Paste, Key_PrintScreen, Key_Insert,    Consumer_ScanPreviousTrack, Consumer_ScanNextTrack, Consumer_PlaySlashPause, ___,
    ___, Key_Delete, ___, ___,
    ___,
 
-   ___,            Key_F6,        Key_F7,                   Key_F8,          Key_F9,         Key_F10,       Key_F11,
-   Key_ScrollLock, Key_Home,      Key_PageUp,               Key_UpArrow,     Key_PageDown,   ___,           Key_F12,
-                   Key_End,       Key_LeftArrow,            Key_DownArrow,   Key_RightArrow, ___,           ___,
+   ___,            Key_F6,        Key_F7,                   Key_F8,                   Key_F9,               Key_F10,  Key_F11,
+   Key_ScrollLock, Key_Home,      Key_PageUp,               Key_UpArrow,              Key_PageDown,         ___,      Key_F12,
+                   Key_End,       Key_LeftArrow,            Key_DownArrow,            Key_RightArrow,       ___,      ___,
    SYSTER,         Consumer_Mute, Consumer_VolumeDecrement, Consumer_VolumeIncrement, ___,   Key_Backslash, Key_Pipe,
    ___, ___, ___, ___,
    ___),
