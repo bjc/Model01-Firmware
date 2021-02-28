@@ -315,7 +315,7 @@ void setup() {
   Serial.begin(9600);
 
   // Necessary for FreeBSD, as it doesn't support NKRO.
-  BootKeyboard.default_protocol = HID_BOOT_PROTOCOL;
+  //BootKeyboard.default_protocol = HID_BOOT_PROTOCOL;
 
   // First, call Kaleidoscope's internal setup function
   Kaleidoscope.setup();
