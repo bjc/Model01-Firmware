@@ -18,8 +18,6 @@
 #include <Kaleidoscope-HostOS.h>
 #include <Kaleidoscope-Syster.h>
 #include <Kaleidoscope-Unicode.h>
-#include <kaleidoscope/hid.h>
-//#include <Kaleidoscope-MacrosOnTheFly.h>
 #include <Kaleidoscope-LEDEffect-BootGreeting.h>
 #include <Kaleidoscope-LEDEffect-Breathe.h>
 #include <Kaleidoscope-IdleLEDs.h>

@@ -1,0 +1,7 @@
+{
+  "cpu": {
+    "fqbn": "keyboardio:avr:model01",
+    "name": "Keyboardio Model 01",
+    "port": "serial:///dev/ttyACM0"
+  }
+}
