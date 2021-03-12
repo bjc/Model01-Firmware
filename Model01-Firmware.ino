@@ -71,8 +71,8 @@ KEYMAPS(
   [PRIMARY] = KEYMAP_STACKED
   (Key_Escape,      Key_1,         Key_2,       Key_3,      Key_4, Key_5, Key_LEDEffectNext,
    Key_Backtick,    Key_Quote,     Key_Comma,   Key_Period, Key_P, Key_Y, Key_Tab,
-   Key_PageUp,      Key_A,         Key_O,       Key_E,      Key_U, Key_I,
-   Key_PageDown,    Key_Semicolon, Key_Q,       Key_J,      Key_K, Key_X, Key_LeftGui,
+   SYSTER,          Key_A,         Key_O,       Key_E,      Key_U, Key_I,
+   Key_RightGui,    Key_Semicolon, Key_Q,       Key_J,      Key_K, Key_X, Key_LeftGui,
    Key_LeftBracket, Key_Backspace, LSHIFT(Key_LeftBracket), LSHIFT(Key_9),
    //Key_LeftControl, Key_Backspace, Key_LeftAlt, Key_LeftShift,
    ShiftToLayer(FUNCTION),
@@ -96,7 +96,7 @@ KEYMAPS(
    ___,            Key_F6,        Key_F7,                   Key_F8,                   Key_F9,               Key_F10,  Key_F11,
    Key_ScrollLock, Key_Home,      Key_PageUp,               Key_UpArrow,              Key_PageDown,         ___,      Key_F12,
                    Key_End,       Key_LeftArrow,            Key_DownArrow,            Key_RightArrow,       ___,      ___,
-   SYSTER,         Consumer_Mute, Consumer_VolumeDecrement, Consumer_VolumeIncrement, ___,   Key_Backslash, Key_Pipe,
+   ___,            Consumer_Mute, Consumer_VolumeDecrement, Consumer_VolumeIncrement, ___,   Key_Backslash, Key_Pipe,
    ___, ___, ___, ___,
    ___),
 
@@ -334,7 +334,7 @@ void setup() {
          kaleidoscope::plugin::Qukey(0, KeyAddr(0, 8), Key_RightControl),
          kaleidoscope::plugin::Qukey(0, KeyAddr(2, 7), Key_LeftAlt),
          kaleidoscope::plugin::Qukey(0, KeyAddr(2, 8), Key_RightAlt),
-         kaleidoscope::plugin::Qukey(0, KeyAddr(2, 9), Key_RightGui));
+         kaleidoscope::plugin::Qukey(0, KeyAddr(2, 9), Key_LeftGui));
   Qukeys.setOverlapThreshold(25);
 
   IdleLEDs.setIdleTimeoutSeconds(300);
